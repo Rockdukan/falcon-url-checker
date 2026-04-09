@@ -2,14 +2,8 @@
 
 Сервис на **Falcon**: проверка домена/URL — DNS (A, AAAA, CNAME, MX), срок TLS-сертификата, HTTP-статус и цепочка редиректов, доступность TCP-портов, наличие `robots.txt` и `sitemap.xml`.
 
-## Возможности
 
-- REST API `GET /api/v1/domain-check?domain=…`
-- `GET /api/v1/health` для балансировщиков
-- Документация: **OpenAPI** в `app/openapi/openapi.yaml`, интерфейсы **`/docs`** (Swagger UI) и **`/redoc`** (ReDoc)
-- Слои: `validators`, `adapters`, `services`, `resources`, `schemas`
-
-## Структура репозитория
+## 📦 Структура репозитория
 
 ```
 ├── app/                              # пакет приложения Falcon
@@ -65,7 +59,7 @@ python run.py
 uv run pytest -q
 ```
 
-## Маршруты
+## 🌐 Маршруты
 
 | Метод и путь | Назначение |
 |--------------|------------|
