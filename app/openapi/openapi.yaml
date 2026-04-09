@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: Falcon URL Checker API
+  version: "0.1.0"
+  description: |
+    Проверка домена/URL: DNS (A, AAAA, CNAME, MX), TLS, HTTP, порты, robots.txt и sitemap.xml.
+
+servers:
+  - url: /
+    description: Текущий хост (например http://127.0.0.1:8000)
+
+paths:
+  /api/v1/domain-check:
+    get:
+      summary: Сводная проверка домена
+      operationId: domainCheck
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          description: Домен или URL (схема http/https будет снята).
+          schema:
+            type: string
+            example: cnews.ru
+      responses:
+        "200":
+          description: Отчёт по домену
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainInspectionReport"
+        "400":
+          description: Некорректный параметр domain
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+
+  /api/v1/health:
+    get:
+      summary: Health-check
+      operationId: health
+      responses:
+        "200":
+          description: Сервис доступен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+    DnsRecords:
+      type: object
+      properties:
+        a:
+          type: array
+          items:
+            type: string
+        aaaa:
+          type: array
+          items:
+            type: string
+        cname:
+          type: array
+          items:
+            type: string
+        mx:
+          type: array
+          items:
+            type: string
+    SslSummary:
+      type: object
+      properties:
+        valid_until_iso:
+          type: string
+          nullable: true
+        not_after_raw:
+          type: string
+          nullable: true
+        subject:
+          type: string
+          nullable: true
+        issuer:
+          type: string
+          nullable: true
+        error:
+          type: string
+          nullable: true
+    HttpSummary:
+      type: object
+      properties:
+        attempted_url:
+          type: string
+        status_code:
+          type: integer
+          nullable: true
+        redirect_chain:
+          type: array
+          items:
+            type: string
+        error:
+          type: string
+          nullable: true
+    PortProbe:
+      type: object
+      properties:
+        port:
+          type: integer
+        open:
+          type: boolean
+        error:
+          type: string
+          nullable: true
+    WebAssetStatus:
+      type: object
+      properties:
+        checked_url:
+          type: string
+        exists:
+          type: boolean
+        status_code:
+          type: integer
+          nullable: true
+        error:
+          type: string
+          nullable: true
+    WebAssetsSummary:
+      type: object
+      properties:
+        robots_txt:
+          $ref: "#/components/schemas/WebAssetStatus"
+        sitemap_xml:
+          $ref: "#/components/schemas/WebAssetStatus"
+    DomainInspectionReport:
+      type: object
+      properties:
+        domain:
+          type: string
+        dns:
+          $ref: "#/components/schemas/DnsRecords"
+        ssl:
+          $ref: "#/components/schemas/SslSummary"
+        http:
+          $ref: "#/components/schemas/HttpSummary"
+        ports:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortProbe"
+        web_assets:
+          $ref: "#/components/schemas/WebAssetsSummary"
